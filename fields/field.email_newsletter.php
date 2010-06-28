@@ -523,6 +523,7 @@
 			$node->setAttribute('total', $data['stats_rec_total']);
 			$node->setAttribute('sent', $data['stats_rec_sent']);
 			$node->setAttribute('errors', $data['stats_rec_errors']);
+			$node->appendChild(new XMLElement('subject', $data['subject']));
 
 			$this->_field_id = $this->get('id');
 			$field_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = $this->_field_id LIMIT 1");
