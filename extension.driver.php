@@ -18,8 +18,8 @@
 		{
 			return array(
 				'name'			=> 'Email Newsletters',
-				'version'		=> '1.0RC1',
-				'release-date'	=> '2010-04-25',
+				'version'		=> '1.0RC2',
+				'release-date'	=> '2010-06-29',
 				'author'		=> array(
 					'name'			=> 'Michael Eichelsdoerfer',
 					'website'		=> 'http://www.michael-eichelsdoerfer.de',
@@ -82,7 +82,7 @@
 		{
 			if(ini_get('safe_mode'))
 			{
-				Administration::instance()->Page->pageAlert(__('Email Newsletters cannot be installed because PHP is running in Safe Mode.'), AdministrationPage::PAGE_ALERT_ERROR);
+				Administration::instance()->Page->pageAlert(__('Email Newsletters can not be installed because PHP is running in Safe Mode.'), AdministrationPage::PAGE_ALERT_ERROR);
 				return false;
 			}
 			## Create database table and fields.
@@ -136,19 +136,20 @@
 			if(@array_key_exists('save', $_POST['action']) && substr($_POST['action']['save'], 0, 8) == 'en-send:')
 			{
 				$vars = explode(":",$_POST['action']['save']);
-				$this->_field_id  = $vars[1];
-				$this->_entry_id  = $vars[2];
-				$domain           = $vars[3];
+				$this->_field_id = $vars[1];
+				$this->_entry_id = $vars[2];
+				$domain          = $vars[3];
 
 				## status must be NULL to prohibit multiple CLI processes caused by page reload;
 				## 'fast double-click' protection is done using JavaScript (see email-newsletters.js);
-				if($this->__getEntry_data['status'] == NULL)
+				$entry_data = $this->__getEntryData();
+				if(!empty($entry_data) && $entry_data['status'] == NULL)
 				{
 					$this->__updateEntryData(array(
 						'status' => 'processing',
 					));
 					## build the command to initiate the background mailer process
-					$cmd = 'php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
+					$cmd  = 'php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
 					$cmd .= $this->_field_id . ' ';
 					$cmd .= $this->_entry_id . ' ';
 					$cmd .= $domain . ' ';
@@ -162,6 +163,16 @@
 /*-------------------------------------------------------------------------
 	Helpers
 -------------------------------------------------------------------------*/
+		/**
+		 * Get entry data
+		 *
+		 * @return Symphony method
+		 */
+		private function __getEntryData()
+		{
+			return Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->_field_id."` WHERE `entry_id` = $this->_entry_id LIMIT 1");
+		}
+
 		/**
 		 * Update entry data
 		 *

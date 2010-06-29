@@ -103,13 +103,11 @@
 				 `author_id` int(11) unsigned NOT NULL,
 				 `sender_id` int(11) unsigned default NULL,
 				 `rec_group_ids` varchar(255) default NULL,
+				 `config_xml` text,
 				 `status` enum('processing','cancel','error','sent') NULL default NULL,
 				 `error_message` varchar(255) default NULL,
 				 `log_file` varchar(255) default NULL,
 				 `subject` varchar(255) default NULL,
-				 `page_html` varchar(255) default NULL,
-				 `page_text` varchar(255) default NULL,
-				 `config_xml` text,
 				 `content_html` mediumtext,
 				 `content_text` mediumtext,
 				 `rec_mailto` mediumtext,
@@ -221,38 +219,35 @@
 
 			## get field configuration data
 			$field_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = $this->_field_id LIMIT 1");
-			$config = simplexml_load_string($field_data['config_xml']);
 
 			## get entry data
 			$entry_data = !empty($this->_entry_id) ? Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->_field_id."` WHERE `entry_id` = $this->_entry_id LIMIT 1") : NULL;
 
-			## find new newsletter status
-			$status = $entry_data['status'];
-
-			## get anything else
-			$element_name = $this->get('element_name');
-			$author_id = Administration::instance()->Author->get('id');
-			$senders = $config->xpath('senders/item');
-			$sender_id = $entry_data['sender_id'];
-			$live_mode = $config->{'live-mode'} == '1' ? true : false;
-			$debug_info = $config->{'debug-info'} == '1' ? true : false;
-			$is_developer = Administration::instance()->Author->isDeveloper();
-			$debug = ($is_developer === true && $debug_info === true) ? true : false;
+			$config                 = simplexml_load_string($field_data['config_xml']);
+			$element_name           = $this->get('element_name');
+			$author_id              = Administration::instance()->Author->get('id');
+			$status                 = $entry_data['status'];
+			$sender_id              = $entry_data['sender_id'];
+			$senders                = $config->xpath('senders/item');
+			$live_mode              = (string)$config->{'live-mode'} == '1' ? true : false;
+			$debug_info             = (string)$config->{'debug-info'} == '1' ? true : false;
+			$is_developer           = Administration::instance()->Author->isDeveloper();
+			$debug                  = ($is_developer === true && $debug_info === true) ? true : false;
+			$rec_groups             = $config->xpath('recipients/group');
+			$recipient_group_ids    = explode(',',$entry_data['rec_group_ids']);
+			$page_html_id           = (string)$config->content->{'page-html'}['page-id'];
+			$page_text_id           = (string)$config->content->{'page-text'}['page-id'];
+			$page_html_url_appendix = (string)$config->content->{'page-html'}['url-appendix'];
+			$page_text_url_appendix = (string)$config->content->{'page-text'}['url-appendix'];
+			$subject_field_label    = (string)$config->{'subject-field-label'};
 
 			## find the newsletter subject
-			$subject_field_label = (string)$config->{'subject-field-label'};
 			$subject_field_handle = Lang::createHandle($subject_field_label);
 			$subject_field_id = $subject_field_handle ? Symphony::Database()->fetchVar('id', 0, "SELECT id FROM `tbl_fields` WHERE `element_name` = '".$subject_field_handle."' AND `parent_section` = '".$this->_section_id."' LIMIT 1") : NULL;
 			if($subject_field_id != $this->_field_id)
 			{
 				$subject = $subject_field_id ? Symphony::Database()->fetchVar('value', 0, "SELECT value FROM `tbl_entries_data_".$subject_field_id."` WHERE `entry_id` = '".$this->_entry_id."' LIMIT 1 ") : NULL;
 			}
-
-			## get all recipient groups
-			$rec_groups = $config->xpath('recipient-groups/item');
-
-			## get recipient group ids
-			$recipient_group_ids = explode(',',$entry_data['rec_group_ids']);
 
 			## build header
 			$header = new XMLElement('h3', $this->get('label'));
@@ -261,19 +256,6 @@
 			## build GUI element
 			$gui = new XMLElement('div');
 			$gui->setAttribute('class', 'email-newsletters-gui');
-
-			## build content page URLs
-			$page_html = !empty($config->{'content-pages'}->{'page-html'}) ? $this->__replaceParamsInString($config->{'content-pages'}->{'page-html'}) : NULL;
-			$page_text = !empty($config->{'content-pages'}->{'page-text'}) ? $this->__replaceParamsInString($config->{'content-pages'}->{'page-text'}) : NULL;
-
-			if($page_html && !$this->__isValidURL($page_html))
-			{
-				$page_html = URL . '/' . ltrim($page_html, '/');
-			}
-			if($page_text && !$this->__isValidURL($page_text))
-			{
-				$page_text = URL . '/' . ltrim($page_text, '/');
-			}
 
 			## build the hidden fields
 			$gui->appendChild(Widget::Input('fields['.$element_name.'][author_id]', $author_id, 'hidden'));
@@ -289,8 +271,6 @@
 				}
 			}
 			$gui->appendChild(Widget::Input('fields['.$element_name.'][subject]', General::sanitize($subject), 'hidden'));
-			$gui->appendChild(Widget::Input('fields['.$element_name.'][page_html]', $page_html, 'hidden'));
-			$gui->appendChild(Widget::Input('fields['.$element_name.'][page_text]', $page_text, 'hidden'));
 
 			## switch status
 			switch ($status)
@@ -327,7 +307,7 @@
 					}
 					if(!empty($rec_groups_used) && (count($rec_groups) > 1 || $debug === true))
 					{
-						$gui->appendChild(new XMLElement('p', __('Recipient groups: ') . implode(', ', $rec_groups_used)));
+						$gui->appendChild(new XMLElement('p', __('Recipients groups: ') . implode(', ', $rec_groups_used)));
 					}
 					$gui->appendChild($this->__buildStatusTable($entry_data));
 					$p = new XMLElement('p');
@@ -363,7 +343,7 @@
 					}
 					if(!empty($rec_groups_used) && (count($rec_groups) > 1 || $debug === true))
 					{
-						$gui->appendChild(new XMLElement('p', __('Recipient groups: ') . implode(', ', $rec_groups_used)));
+						$gui->appendChild(new XMLElement('p', __('Recipients groups: ') . implode(', ', $rec_groups_used)));
 					}
 					$gui->appendChild($this->__buildStatusTable($entry_data));
 					if($live_mode !== true)
@@ -395,7 +375,7 @@
 					}
 					if(count($rec_groups) > 1 || $debug === true)
 					{
-						$p = new XMLElement('p', __('Recipient groups: '));
+						$p = new XMLElement('p', __('Recipients groups: '));
 						$gui->appendChild($p);
 						$p = new XMLElement('p', NULL, array('class' => 'recipient-groups'));
 						foreach($rec_groups as $rec_group)
@@ -407,7 +387,7 @@
 								$rec_group_id = (string)$rec_group['id'];
 								$recipients_page_id = (string)$rec_group['page-id'];
 								$recipients_page_path = Administration::instance()->resolvePagePath($recipients_page_id);
-								$recipients_page_url = URL . '/' . $recipients_page_path . '/' . $rec_group['get'];
+								$recipients_page_url = URL . '/' . $recipients_page_path . '/' . $this->__replaceParamsInString($rec_group['url-appendix']);
 								$developer_info = $recipients_page_path ? ' '.'<a href="'.$recipients_page_url.'" target="_blank">'.'XML'.'</a>' : '';
 								$rec_group = $rec_group . $developer_info;
 							}
@@ -421,9 +401,12 @@
 					{
 						$gui->appendChild(Widget::Input('fields['.$element_name.'][recipient_group_ids][]', $rec_groups[0]['id'], 'hidden'));
 					}
-					$content_html_link = $page_html ? '<a href="'.$page_html.'" target="_blank">HTML</a>' : NULL;
-					$content_text_link = $page_text ? '<a href="'.$page_text.'" target="_blank">TEXT</a>' : NULL;
-					$content_links = new XMLElement('p', __('Preview: ') . $content_html_link . (($page_html && $page_text) ? ' | ' : NULL) . $content_text_link);
+					## preview links
+					$page_html_url = URL . '/' . Administration::instance()->resolvePagePath($page_html_id) . '/' . ltrim($this->__replaceParamsInString($page_html_url_appendix), '/');
+					$page_text_url = URL . '/' . Administration::instance()->resolvePagePath($page_text_id) . '/' . ltrim($this->__replaceParamsInString($page_text_url_appendix), '/');
+					$content_html_link = $page_html_id ? '<a href="'.$page_html_url.'" target="_blank">HTML</a>' : NULL;
+					$content_text_link = $page_text_id ? '<a href="'.$page_text_url.'" target="_blank">TEXT</a>' : NULL;
+					$content_links = new XMLElement('p', __('Preview: ') . $content_html_link . (($page_html_id && $page_text_id) ? ' | ' : '') . $content_text_link);
 					$gui->appendChild($content_links);
 					$p = new XMLElement('p');
 					$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));
@@ -445,19 +428,17 @@
 			$status = self::__OK__;
 			if(empty($data)) return NULL;
 
-			$entry_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->get('id')."` WHERE `entry_id` = $entry_id LIMIT 1");
+			if($entry_id) $entry_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->get('id')."` WHERE `entry_id` = $entry_id LIMIT 1");
 
 			$result = array(
 				'author_id'        => $data['author_id'],
 				'sender_id'        => $data['sender_id'],
 				'rec_group_ids'    => $data['recipient_group_ids'] ? implode(',', $data['recipient_group_ids']) : NULL,
 				'subject'          => $data['subject'],
-				'page_html'        => $data['page_html'],
-				'page_text'        => $data['page_text'],
 				'status'           => $entry_data['status'],
 				'error_message'    => $entry_data['error_message'],
-				'log_file'         => $entry_data['log_file'],
 				'config_xml'       => $entry_data['config_xml'],
+				'log_file'         => $entry_data['log_file'],
 				'content_html'     => $entry_data['content_html'],
 				'content_text'     => $entry_data['content_text'],
 				'rec_mailto'       => $entry_data['rec_mailto'],
@@ -513,7 +494,6 @@
 
 		/**
 		 * Append element to datasource output
-		 * @return: void
 		 */
 		public function appendFormattedElement(&$wrapper, $data, $encode = false)
 		{
@@ -525,23 +505,32 @@
 			$node->setAttribute('errors', $data['stats_rec_errors']);
 			$node->appendChild(new XMLElement('subject', $data['subject']));
 
-			$this->_field_id = $this->get('id');
-			$field_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = $this->_field_id LIMIT 1");
-			$config = simplexml_load_string($field_data['config_xml']);
+			## load configuration;
+			## use saved (entry) config XML if available (i.e.: if the email newsletter has been sent);
+			## fallback: the field's configuration XML
+			if(!empty($data['config_xml']))
+			{
+				$config = simplexml_load_string($data['config_xml']);
+			}
+			else
+			{
+				$field_data = Symphony::Database()->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = ".$this->get('id')." LIMIT 1");
+				$config = simplexml_load_string($field_data['config_xml']);
+			}
 
 			## sender
-			$sender_id = $data['sender_id'];
 			$sender = new XMLElement('sender');
+			$sender_id = $data['sender_id'];
 			if(!empty($sender_id))
 			{
-				$sender_name = $config->xpath("senders/item[@id = $sender_id]");
-				$sender->setValue((string)$sender_name[0]);
+				$sender_data = $config->xpath("senders/item[@id = $sender_id]");
+				$sender->setValue((string)$sender_data[0]);
 				$sender->setAttribute('id', $data['sender_id']);
 			}
 			$node->appendChild($sender);
 
 			## recipients
-			$rec_groups = $config->xpath('recipient-groups/item');
+			$rec_groups = $config->xpath('recipients/group');
 			$recipient_group_ids = explode(',', $data['rec_group_ids']);
 			$recipients = new XMLElement('recipients');
 			foreach($rec_groups as $rec_group)

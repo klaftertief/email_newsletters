@@ -45,19 +45,9 @@
 		 */
 		public function init()
 		{
-			$this->__updateEntryData(array('status' => 'processing'));
-
-			## load content pages
-			$page_html = $this->_entry_data['page_html'];
-			$page_text = $this->_entry_data['page_text'];
-			$content_html = !empty($page_html) ? $this->__loadPage($page_html, 'Newsletter HTML page') : '';
-			$content_text = !empty($page_text) ? $this->__loadPage($page_text, 'Newsletter TEXT page') : '';
-			$content_text = html_entity_decode($content_text, ENT_QUOTES, 'UTF-8');
-
 			$data = array(
+				'status' => 'processing',
 				'config_xml'   => $this->_field_data['config_xml'],
-				'content_html' => $content_html,
-				'content_text' => $content_text,
 			);
 			$this->__updateEntryData($data);
 
@@ -86,31 +76,22 @@
 			}
 			$mailto = array();
 			$invalid = array();
-			foreach($this->_config->xpath('//recipient-groups/item') as $group)
+			foreach($this->_config->xpath('//recipients/group') as $group)
 			{
 				if(in_array($group['id'], explode(',',$rec_group_ids)))
 				{
-					$recipients_page_id = $group['page-id'];
-					$recipients_page_path = Administration::instance()->resolvePagePath($recipients_page_id);
-					$recipients_page_url = URL . '/' . $recipients_page_path . '/' . $group['get'];
-
-					## handle errors and load XML
-					if(!$recipients_page_path)
-					{
-						$this->__exitError('ERROR: The recipient page path for group ID ' . $group['id'] . ' could not be resolved.');
-					}
-					$recipients_xml = @simplexml_load_string($this->__loadPage($recipients_page_url, 'Recipients page'));
+					$recipients_xml = @simplexml_load_string($this->__loadSymphonyPage($group['page-id'], $group['url-appendix']));
 					if(!$recipients_xml)
 					{
-						$this->__exitError('ERROR: The recipient page for group ID ' . $group['id'] . ' could not be loaded as XML.');
+						$this->__exitError('ERROR: The recipients page with page ID ' . $group['id'] . ' could not be loaded as XML.');
 					}
 					if(!@$recipients_xml->xpath('//'.$group['entry-node']))
 					{
-						$this->__exitError('ERROR: Recipient group ID' . ': ' . $group['id']. ': '.'entry node error');
+						$this->__exitError('ERROR: Recipients page with page ID' . ': ' . $group['id']. ': '.'entry node error');
 					}
 					if(!@$recipients_xml->xpath('//'.$group['email-node']))
 					{
-						$this->__exitError('ERROR: Recipient group ID' . ': ' . $group['id']. ': '.'email node error');
+						$this->__exitError('ERROR: Recipients page with page ID' . ': ' . $group['id']. ': '.'email node error');
 					}
 
 					## build arrays
@@ -141,6 +122,21 @@
 				'rec_replacements' => serialize($decorator_replacements),
 				'stats_rec_total'  => count($mailto) + count($invalid),
 				'stats_rec_errors' => count($invalid),
+			);
+			$this->__updateEntryData($data);
+
+			## load content
+			$page_html_id           = (string)$this->_config->content->{'page-html'}['page-id'];
+			$page_text_id           = (string)$this->_config->content->{'page-text'}['page-id'];
+			$page_html_url_appendix = (string)$this->_config->content->{'page-html'}['url-appendix'];
+			$page_text_url_appendix = (string)$this->_config->content->{'page-text'}['url-appendix'];
+			$content_html = !empty($page_html_id) ? $this->__loadSymphonyPage($page_html_id, $page_html_url_appendix) : NULL;
+			$content_text = !empty($page_text_id) ? $this->__loadSymphonyPage($page_text_id, $page_text_url_appendix) : NULL;
+			$content_text = html_entity_decode($content_text, ENT_QUOTES, 'UTF-8');
+
+			$data = array(
+				'content_html' => $content_html,
+				'content_text' => $content_text,
 			);
 			$this->__updateEntryData($data);
 
@@ -386,12 +382,28 @@ Failures:
 		/**
 		 * Load page if response header is '200'; else: throw custom error;
 		 *
-		 * @param string $url - URL to load
-		 * @param string $title - page title
+		 * @param string $id - Symphony page ID
 		 * @return string - page content (without headers)
 		 */
-		private function __loadPage($url, $title)
+		private function __loadSymphonyPage($page_id, $url_appendix)
 		{
+			$path = Administration::instance()->resolvePagePath($page_id);
+			if(!$path)
+			{
+				$this->__exitError('ERROR: The page path for page ID ' . $page_id . ' could not be resolved.');
+			}
+			$url = URL . '/' . $path . '/' . $this->__replaceParamsInString($url_appendix);
+
+			## check for 'admin' page type in tbl_pages_types
+			$existing = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_pages_types` WHERE `page_id` = '{$page_id}' AND `type` = 'admin' LIMIT 1");
+			$page_type_admin = !empty($existing) ? true : false;
+
+			if($page_type_admin)
+			{
+				## remove 'admin' page type from tbl_pages_types (i.e. make page readable)
+				Administration::instance()->Database->delete('tbl_pages_types', " `page_id` = '{$page_id}' AND `type` = 'admin' ");
+			}
+
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
@@ -404,7 +416,7 @@ Failures:
 			$pos = strpos($header, '200 OK');
 			if($pos === FALSE)
 			{
-				$this->__exitError(__('ERROR: Page load failed.'));
+				$this->__exitError(__('ERROR: Page load failed.') . ' ID: ' . $page_id);
 			}
 			curl_close($ch);
 
@@ -418,6 +430,19 @@ Failures:
 			curl_setopt($ch, CURLOPT_NOBODY, FALSE);
 			$page = curl_exec($ch);
 			curl_close($ch);
+
+			if($page_type_admin)
+			{
+				## insert 'admin page type' into tbl_pages_types (i.e. protect page)
+				Administration::instance()->Database->insert(
+					array(
+						'page_id' => ".$page_id.",
+						'type' => 'admin'
+					),
+					'tbl_pages_types'
+				);
+			}
+
 			return $page;
 		}
 
@@ -507,4 +532,46 @@ Failures:
 			}
 			return false;
 		}
+
+		/**
+		 * Replace parameters in string
+		 *
+		 * @param string $string
+		 * @return string $string
+		 */
+		private function __replaceParamsInString($string)
+		{
+			$params = $this->__findParamsInString($string);
+			if(is_array($params) && !empty($params))
+			{
+				foreach($params as $value)
+				{
+					if($value == 'id')
+					{
+						$string = str_replace('{$'.$value.'}', $this->_entry_id, $string);
+					}
+					else if($field_id = Symphony::Database()->fetchVar('id', 0, "SELECT id FROM `tbl_fields` WHERE `element_name` = '".$value."' AND `parent_section` = '".$this->_section_id."' LIMIT 1"))
+					{
+						$field_handle = Symphony::Database()->fetchVar('handle', 0, "SELECT handle FROM `tbl_entries_data_".$field_id."` WHERE `entry_id` = '".$this->_entry_id."' LIMIT 1");
+						$string = str_replace('{$'.$value.'}', $field_handle, $string);
+					}
+				}
+			}
+			return $string;
+		}
+
+		/**
+		 * Find parameters in string
+		 *
+		 * @param string $string
+		 * @return array $params
+		 */
+		private function __findParamsInString($string)
+		{
+			preg_match_all('/{\$([^:}]+)(::handle)?}/', $string, $matches);
+			$params = array_unique($matches[1]);
+			if(!is_array($params) || empty($params)) return array();
+			return $params;
+		}
+
 	}

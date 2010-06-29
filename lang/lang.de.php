@@ -11,7 +11,7 @@
 
 	## Dictionary
 	$dictionary = array(
-		'Email Newsletters cannot be installed because PHP is running in Safe Mode.' =>
+		'Email Newsletters can not be installed because PHP is running in Safe Mode.' =>
 		'Email Newsletters kann nicht installiert werden, weil PHP im Safe Mode arbeitet.',
 
 		'WARNING: It appears PHP is running in Safe Mode. This extension will not work. You should uninstall the extension or get rid of PHP Safe Mode.' =>
@@ -71,7 +71,7 @@
 		'--- please select ---' =>
 		'--- bitte auswählen ---',
 
-		'Recipient groups: ' =>
+		'Recipients groups: ' =>
 		'Empfängergruppen: ',
 
 		'Configuration (XML)' =>

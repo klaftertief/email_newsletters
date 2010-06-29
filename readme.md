@@ -1,7 +1,7 @@
 # Email Newsletters
 
-- Version: 1.0RC1
-- Date: 2010-06-27
+- Version: 1.0RC2
+- Date: 2010-06-29
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
 - GitHub Repository: <http://github.com/michael-e/email_newsletters>
@@ -67,6 +67,8 @@ Never use this extension for SPAM. If you do so I will hate you.
 
 Information about [installing and updating extensions](http://symphony-cms.com/learn/tasks/view/install-an-extension/) can be found in the Symphony documentation at <http://symphony-cms.com/learn/>.
 
+**There have been changes to the field's database structure which are not covered by the updater function.** So if you have already set up RC1, plesase uninstall the field and the extension, the install RC2. (Make sure to have a copy of your XML configuration which can be adopted to RC2's XML structure.)
+
 
 ## Prerequisites
 
@@ -116,11 +118,7 @@ In order to send Newsletters, you should have created a TEXT page and - optional
 - {$title} or similar: any field in the section (use the field handle)
 - {$id}: the ID of the entry
 
-Typical URLs may look like this:
-
-- /news/?id={$id}
-- /news/{$id}/
-- /news/{$title}/
+Any pages are described using the page ID (which you will see in the page's "edit" URL) plus a *url-appendix* which may contain the above parameter syntax.
 
 HTTP redirects are followed. If '200 OK' is not found in the HTTP response headers, an error will be thrown and the sending process will be aborted.
 
@@ -223,7 +221,7 @@ In the beginning the Email Newsletters extension provided most of the configurat
 
 XML configuration error handling may or may not be added in a future version. At the moment you must simply do it right. :-)
 
-I have not written a DTD for this XML. But I am providing in-depth explanations here.
+I have not written a DTD for this XML. But I am providing in-depth explanations below.
 
 This is the minimum configuration:
 
@@ -233,13 +231,13 @@ This is the minimum configuration:
 		<senders>
 			<item id="1" email="ted@example.com" smtp-host="smtp.example.com" smtp-port="" smtp-username="ted" smtp-password="tedspassword" reply-to="management@example.com">Ted Tester</item>
 		</senders>
-		<recipient-groups>
-			<item id="1" page-id="141" entry-node="entry" name-node="name" email-node="email" code-node="code">Deutschland</item>
-		</recipient-groups>
-		<content-pages>
-			<page-html>/presse/mitteilungen/email-html/{$id}/</page-html>
-			<page-text>/presse/mitteilungen/email-text/{$id}/</page-text>
-		</content-pages>
+		<recipients>
+			<group id="1" page-id="141" entry-node="entry" name-node="name" email-node="email" code-node="code">Deutschland</group>
+		</recipients>
+		<content>
+			<page-html page-id="151" url-appendix="{$id}/"/>
+			<page-text page-id="152" url-appendix="{$id}/"/>
+		</content>
 	</email-newsletter>
 
 And here is a full-blown example:
@@ -252,15 +250,15 @@ And here is a full-blown example:
 			<item id="1" smtp-host="" smtp-port="" smtp-username="" smtp-password="" from-email="ted@example.com" from-name="Teddy" reply-to-email="management@example.com" reply-to-name="Teddy2" return-path="returningmails@example.com">Ted Tester</item>
 			<item id="2" smtp-host="smtp.example.com" smtp-port="" smtp-username="we3mast3r" smtp-password="password!" from-email="webmaster@example.com" from-name="" reply-to-email="webby@example.com" reply-to-name="" return-path="">Example Webmaster</item>
 		</senders>
-		<recipient-groups>
-			<item id="1" page-id="141" get="?auth-token=ae27e5e6" entry-node="entry" name-node="name" email-node="email" code-node="code">Clients</item>
-			<item id="2" page-id="142" get="?auth-token=ae27e5e6&amp;region=usa" entry-node="partner" name-node="full-name" email-node="email" code-node="secret-code">Partners (USA)</item>
-			<item id="3" page-id="142" get="?auth-token=ae27e5e6&amp;region=bavaria" entry-node="partner" name-node="full-name" email-node="email" code-node="secret-code">Partners (Bavaria)</item>
-		</recipient-groups>
-		<content-pages>
-			<page-html>/presse/mitteilungen/email-html/{$id}/</page-html>
-			<page-text>/presse/mitteilungen/email-text/{$id}/</page-text>
-		</content-pages>
+		<recipients>
+			<group id="1" page-id="141" url-appendix="" entry-node="entry" name-node="name" email-node="email" code-node="code">Clients</group>
+			<group id="2" page-id="142" url-appendix="?region=usa" entry-node="partner" name-node="full-name" email-node="email" code-node="secret-code">Partners (USA)</group>
+			<group id="3" page-id="142" url-appendix="?region=bavaria" entry-node="partner" name-node="full-name" email-node="email" code-node="secret-code">Partners (Bavaria)</group>
+		</recipients>
+		<content>
+			<page-html page-id="151" url-appendix="{$id}/"/>
+			<page-text page-id="152" url-appendix="{$id}/"/>
+		</content>
 		<search-strings>
 			<item replacement-node="email-node">[[email]]</item>
 			<item replacement-node="name-node">[[name]]</item>
@@ -279,7 +277,7 @@ Meaning of those XML elements (and/or attributes):
 - Live Mode (optional)
 
 	If not explicitely set to '1', the following will happen:
-	
+
 	- Information about this status will be appended to the publish panel.
 	- No emails will be sent. The first line in the log will reflect this.
 	- There will be "retry" button upon successful sending, restting the newsletter data in the DB (e.g. the status). This eases developers' work - sending of a newsletter may be re-started without fiddling around in the DB.
@@ -296,40 +294,56 @@ Meaning of those XML elements (and/or attributes):
 
 - Senders (required)
 
-	- Item (required: one; optional: multiple)
+	- item (required: one; optional: multiple)
 
 		Most of the sender attributes should be self-explanatory.
-		
+
 		While the `return-path` option may be useful from time to time, you should be careful with this - if the return path's domain does not match your SPF record's domain, your SPF record won't do any good to your SPAM score...
 
-- Recipient Groups (required)
+- Recipients (required)
 
-	- Item (required: one; optional: multiple)
+	- group (required: one; optional: multiple)
+
+		Every recipient page defines a recipient group! (If more than one, you will be able to select the recipient groups for a newsletter on your entry edit page.)
 
 		- ID
 
 			If the group ID is missing, the group can not be saved.
 
-		- page id
+		- page-id
 
-		- get
+		- url-appendix
 
-			You may provide an additional GET string here (which must start with a '?' sign). This is very useful to handle several recipient groups with just one Symphony XML page using datasource filtering.
+			You may provide an additional string here (which may contain param syntax which is probably never needed) to be appended to the URL. This is very useful to handle several recipient groups with just one Symphony XML page using datasource filtering.
 
 		- entry node
 		- name node (must be a child node of the entry node)
 		- email node (must be a child node of the entry node)
 		- additional nodes
 
-- Content Pages (required)
+			Additional nodes may be be used for "search and replace"" operations (e.g. to build personalized opt-out links in emails)
 
-	- Newsletter HTML page (optional)
+- Content (required; must hav at least one child)
 
-		A Symphony page which contains the newsletter's HTML content (based on your entry data). See above.
+	- HTML page (optional)
 
-	- Newsletter TEXT page (optional, but recommended)
+		Symphony page which contains the newsletter's HTML content (based on your entry data). See above.
 
-		A Symphony page which contains the newsletter's TEXT content (based on your entry data). See above.
+		- page id
+
+		- url-appendix
+
+			You may provide an additional string here (which may contain param syntax) to be appended to the URL. This allows datasource filtering using IDs or entry titles.
+
+	- TEXT page (optional)
+
+		Symphony page which contains the newsletter's TEXT content (based on your entry data). See above.
+
+		- page id
+
+		- url-appendix
+
+			You may provide an additional string here (which may contain param syntax) to be appended to the URL. This allows datasource filtering using IDs or entry titles.
 
 - Search Strings (optional)
 
@@ -352,13 +366,13 @@ The data source output of the Email Newsletter field contains:
 - sender
 - recipient groups
 
-This what it will look like in your page XML:
+It will look like this in your page XML:
 
 	<email-newsletter author-id="1" status="processing" total="602" sent="120" errors="0">
 		<sender id="1">Michael E.</sender>
 		<recipients>
-			<group id="1">Clients Germany</group>
-			<group id="4">Clients USA</group>
+			<group id="1">Clients</group>
+			<group id="3">Partners (Bavaria)</group>
 		</recipients>
 	</email-newsletter>
 
@@ -400,9 +414,10 @@ Here is a simple example DNS record which worked very well in my tests:
 
 By design the extension will log every Newsletter that has been sent, including the following details:
 
-- recipients (array format)
+- newsletter subject
 - newsletter HTML content
 - newsletter TEXT content
+- recipients (array format)
 - recipient "slices" (array format)
 - statistics
 
@@ -411,15 +426,20 @@ Logs are saved in `/manifest/logs/email-newsletters`. If the `gzencode` PHP func
 
 ## Security Concerns
 
-### Protecting the Recipients Page
+### Protecting the Recipients Page (and Content Pages alike)
 
 You may consider the following measures in order to secure your recipients data:
 
-- URL: may contain a "password portion" (which may be changed at any time, because the page is referenced by its ID in the XML configuration);
-- XSLT: compare remote IP to server IP using the Server Headers extension; don'd output any useful data if the condition is not met;
-- Use page type 'admin' (and Symphony's remote login option, i.e. append ?auth-token=ab123456 to the URL).
+- page URL: may contain a "password portion" (which may be changed at any time, because the page is referenced by its ID in the XML configuration);
+- page XSLT: compare remote IP to server IP using the Server Headers extension; don't output any useful data if the condition is not met;
+- page type 'admin'
 
-If you are using the latter (which is recommended), clicking on a recipients page preview link (in the GUI) will log you in as the user who has the auth-token enabled. In production environments this user should not have developer status. During development you may consider to make this user a developer, so you will still have full access to Symphony's backend.
+If you are using the latter (which is recommended), the extension will automatically remove the 'admin' page type before loading the page and add the 'admin' page type again immediately after loading. This will happen very fast, so it is not considered a security flaw.
+
+All these measures may be taken for content pages as well, in case you don't want to have the email's content accessible on the web. If you have a newsletter archive on your website, you may even consider the following:
+
+- content pages for newsletters which are "published" on the web - datasource checks for a "published" flag
+- separate content pages for use with the extension (preview plus loading!) - datasource does not check the "published" flag, but the page has the page type 'admin'
 
 ### Protecting the Logfiles
 
@@ -454,6 +474,13 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 	These constraints are regarded a small price for having a combined "Save and Send" button (which is simply called "Send"). (We actually need the button's value to implement this functionality.)
 
 ## Change Log
+
+### 1.0RC2
+
+Release-date: 2010-06-28
+
+- Changed: implementation of loading pages with page type 'admin'
+- Changed: XMl configuration elements/attributes for recipients and content pages
 
 ### 1.0RC1
 
