@@ -247,7 +247,7 @@ And here is a full-blown example:
 		<debug-info>1</debug-info>
 		<subject-field-label>Title</subject-field-label>
 		<senders>
-			<item id="1" smtp-host="" smtp-port="" smtp-username="" smtp-password="" from-email="ted@example.com" from-name="Teddy" reply-to-email="management@example.com" reply-to-name="Teddy2" return-path="returningmails@example.com">Ted Tester</item>
+			<item id="1" smtp-host="smtp.example.com" smtp-port="" smtp-username="newsletter@example.com" smtp-password="mysecretpassword" from-email="ted@example.com" from-name="Teddy" reply-to-email="management@example.com" reply-to-name="Teddy2" return-path="returningmails@example.com">Ted Tester</item>
 			<item id="2" smtp-host="smtp.example.com" smtp-port="" smtp-username="we3mast3r" smtp-password="password!" from-email="webmaster@example.com" from-name="" reply-to-email="webby@example.com" reply-to-name="" return-path="">Example Webmaster</item>
 		</senders>
 		<recipients>
