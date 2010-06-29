@@ -31,10 +31,10 @@
 			require_once(CORE . '/class.administration.php');
 			$this->_field_id = $field_id;
 			$this->_entry_id = $entry_id;
+			$this->_section_id = Administration::instance()->Database->fetchVar('parent_section', 0, "SELECT parent_section FROM `tbl_fields` WHERE `id` = $this->_field_id LIMIT 1");
 			$this->_prefs = Administration::instance()->Configuration->get('email-newsletters');
 			$this->_field_data = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = $this->_field_id LIMIT 1");
 			$this->_entry_data = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->_field_id."` WHERE `entry_id` = $this->_entry_id LIMIT 1");
-			$this->_section_id = Administration::instance()->Database->fetchVar('parent_section', 0, "SELECT parent_section FROM `tbl_fields` WHERE `id` = $this->_field_id LIMIT 1");
 		}
 
 /*-------------------------------------------------------------------------
@@ -54,7 +54,7 @@
 			$this->__updateEntryData($data);
 
 			$this->_config = simplexml_load_string($this->_entry_data['config_xml']);
-			$live_mode = $this->_config->{'live-mode'} == '1' ? true : false;
+			$live_mode = (string)$this->_config->{'live-mode'} == '1' ? true : false;
 
 			## check for sender ID
 			$sender_id = $this->_entry_data['sender_id'];

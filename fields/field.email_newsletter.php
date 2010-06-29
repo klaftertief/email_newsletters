@@ -307,7 +307,7 @@
 					}
 					if(!empty($rec_groups_used) && (count($rec_groups) > 1 || $debug === true))
 					{
-						$gui->appendChild(new XMLElement('p', __('Recipients groups: ') . implode(', ', $rec_groups_used)));
+						$gui->appendChild(new XMLElement('p', __('Recipient groups: ') . implode(', ', $rec_groups_used)));
 					}
 					$gui->appendChild($this->__buildStatusTable($entry_data));
 					$p = new XMLElement('p');
@@ -343,7 +343,7 @@
 					}
 					if(!empty($rec_groups_used) && (count($rec_groups) > 1 || $debug === true))
 					{
-						$gui->appendChild(new XMLElement('p', __('Recipients groups: ') . implode(', ', $rec_groups_used)));
+						$gui->appendChild(new XMLElement('p', __('Recipient groups: ') . implode(', ', $rec_groups_used)));
 					}
 					$gui->appendChild($this->__buildStatusTable($entry_data));
 					if($live_mode !== true)
@@ -375,7 +375,7 @@
 					}
 					if(count($rec_groups) > 1 || $debug === true)
 					{
-						$p = new XMLElement('p', __('Recipients groups: '));
+						$p = new XMLElement('p', __('Recipient groups: '));
 						$gui->appendChild($p);
 						$p = new XMLElement('p', NULL, array('class' => 'recipient-groups'));
 						foreach($rec_groups as $rec_group)
@@ -401,12 +401,12 @@
 					{
 						$gui->appendChild(Widget::Input('fields['.$element_name.'][recipient_group_ids][]', $rec_groups[0]['id'], 'hidden'));
 					}
-					## preview links
+					## content links
 					$page_html_url = URL . '/' . Administration::instance()->resolvePagePath($page_html_id) . '/' . ltrim($this->__replaceParamsInString($page_html_url_appendix), '/');
 					$page_text_url = URL . '/' . Administration::instance()->resolvePagePath($page_text_id) . '/' . ltrim($this->__replaceParamsInString($page_text_url_appendix), '/');
 					$content_html_link = $page_html_id ? '<a href="'.$page_html_url.'" target="_blank">HTML</a>' : NULL;
 					$content_text_link = $page_text_id ? '<a href="'.$page_text_url.'" target="_blank">TEXT</a>' : NULL;
-					$content_links = new XMLElement('p', __('Preview: ') . $content_html_link . (($page_html_id && $page_text_id) ? ' | ' : '') . $content_text_link);
+					$content_links = new XMLElement('p', __('Content: ') . $content_html_link . (($page_html_id && $page_text_id) ? ' | ' : '') . $content_text_link);
 					$gui->appendChild($content_links);
 					$p = new XMLElement('p');
 					$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));

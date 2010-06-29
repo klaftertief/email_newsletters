@@ -59,8 +59,8 @@
 		'Errors' =>
 		'Fehler',
 
-		'Preview: ' =>
-		'Voransicht: ',
+		'Content: ' =>
+		'Inhalt: ',
 
 		'Send' =>
 		'Senden',
@@ -71,7 +71,7 @@
 		'--- please select ---' =>
 		'--- bitte auswählen ---',
 
-		'Recipients groups: ' =>
+		'Recipient groups: ' =>
 		'Empfängergruppen: ',
 
 		'Configuration (XML)' =>
