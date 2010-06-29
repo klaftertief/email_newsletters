@@ -10,6 +10,7 @@
 	{
 		protected $_field_id;
 		protected $_entry_id;
+		protected $_section_id;
 		protected $_prefs;
 		protected $_field_data;
 		protected $_entry_data;
@@ -33,6 +34,7 @@
 			$this->_prefs = Administration::instance()->Configuration->get('email-newsletters');
 			$this->_field_data = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_fields_email_newsletter` WHERE `field_id` = $this->_field_id LIMIT 1");
 			$this->_entry_data = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_entries_data_".$this->_field_id."` WHERE `entry_id` = $this->_entry_id LIMIT 1");
+			$this->_section_id = Administration::instance()->Database->fetchVar('parent_section', 0, "SELECT parent_section FROM `tbl_fields` WHERE `id` = $this->_field_id LIMIT 1");
 		}
 
 /*-------------------------------------------------------------------------
