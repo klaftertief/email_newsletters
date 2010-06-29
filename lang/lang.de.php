@@ -74,6 +74,9 @@
 		'Recipient groups: ' =>
 		'Empfängergruppen: ',
 
+		'The entry has not been created yet. No Emails can be sent.' =>
+		'Der Eintrag ist noch nicht erstellt worden. E-Mails können nicht verschickt werden.',
+
 		'Configuration (XML)' =>
 		'Konfiguration (XML)',
 

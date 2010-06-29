@@ -401,16 +401,24 @@
 					{
 						$gui->appendChild(Widget::Input('fields['.$element_name.'][recipient_group_ids][]', $rec_groups[0]['id'], 'hidden'));
 					}
-					## content links
-					$page_html_url = URL . '/' . Administration::instance()->resolvePagePath($page_html_id) . '/' . ltrim($this->__replaceParamsInString($page_html_url_appendix), '/');
-					$page_text_url = URL . '/' . Administration::instance()->resolvePagePath($page_text_id) . '/' . ltrim($this->__replaceParamsInString($page_text_url_appendix), '/');
-					$content_html_link = $page_html_id ? '<a href="'.$page_html_url.'" target="_blank">HTML</a>' : NULL;
-					$content_text_link = $page_text_id ? '<a href="'.$page_text_url.'" target="_blank">TEXT</a>' : NULL;
-					$content_links = new XMLElement('p', __('Content: ') . $content_html_link . (($page_html_id && $page_text_id) ? ' | ' : '') . $content_text_link);
-					$gui->appendChild($content_links);
-					$p = new XMLElement('p');
-					$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));
-					$gui->appendChild($p);
+					if(isset($this->_entry_id))
+					{
+						## content links
+						$page_html_url = URL . '/' . Administration::instance()->resolvePagePath($page_html_id) . '/' . ltrim($this->__replaceParamsInString($page_html_url_appendix), '/');
+						$page_text_url = URL . '/' . Administration::instance()->resolvePagePath($page_text_id) . '/' . ltrim($this->__replaceParamsInString($page_text_url_appendix), '/');
+						$content_html_link = $page_html_id ? '<a href="'.$page_html_url.'" target="_blank">HTML</a>' : NULL;
+						$content_text_link = $page_text_id ? '<a href="'.$page_text_url.'" target="_blank">TEXT</a>' : NULL;
+						$content_links = new XMLElement('p', __('Content: ') . $content_html_link . (($page_html_id && $page_text_id) ? ' | ' : '') . $content_text_link);
+						$gui->appendChild($content_links);
+						$p = new XMLElement('p');
+						$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));
+						$gui->appendChild($p);						
+					}
+					else
+					{
+						$p = new XMLElement('p', __('The entry has not been created yet. No Emails can be sent.'));
+						$gui->appendChild($p);						
+					}
 			}
 			## append 'no live mode' information
 			if($live_mode !== true)
