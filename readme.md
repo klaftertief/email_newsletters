@@ -1,6 +1,6 @@
 # Email Newsletters
 
-- Version: 1.0RC2
+- Version: 1.0RC3
 - Date: 2010-06-29
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
@@ -67,7 +67,7 @@ Never use this extension for SPAM. If you do so I will hate you.
 
 Information about [installing and updating extensions](http://symphony-cms.com/learn/tasks/view/install-an-extension/) can be found in the Symphony documentation at <http://symphony-cms.com/learn/>.
 
-**There have been changes to the field's database structure which are not covered by the updater function.** So if you have already set up RC1, plesase uninstall the field and the extension, the install RC2. (Make sure to have a copy of your XML configuration which can be adopted to RC2's XML structure.)
+**There have been changes to the field's database structure which are not covered by the updater function.** So if you have already set up RC1, plesase uninstall the field and the extension, the install the latest version. (Make sure to have a copy of your XML configuration which can be adopted to the new XML structure.)
 
 
 ## Prerequisites
@@ -476,6 +476,12 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 	These constraints are regarded a small price for having a combined "Save and Send" button (which is simply called "Send"). (We actually need the button's value to implement this functionality.)
 
 ## Change Log
+
+### 1.0RC2
+
+Release-date: 2010-06-30
+
+Bugfixes and overall improvements.
 
 ### 1.0RC2
 
