@@ -21,7 +21,7 @@ This extension is powerful. But in order to not sacrifice flexibility, some desi
 
 The Email Newsletters extension provides a news field type called _Email Newsletter_. This field has lots of configuration options like SMTP connection, newsletter content and recipient pages. Any content needed to send emails (HTML, pure text and recipient information) will be loaded using pages of your website, i.e. Symphony pages. Once you have set up those pages and managed the field's configuration (which is explained in detail below), you have won.
 
-If you add the field to a section, you will find the field's publish panel on the entry edit page, featuring sender selection (if more than one sender is configured), checkboxes for recipient groups (if more than one recipient group is configured), content preview links and the send button. Upon sending, the panel will be reloaded every few seconds and it will show the processing status.
+Once you added the field to a section and configured it, you will find the field's publish panel on the entry edit page, featuring sender selection (if more than one sender is configured), checkboxes for recipient groups (if more than one recipient group is configured), content (preview) links and the send button. Upon sending, the panel will be reloaded every few seconds and it will show the processing status.
 
 Sending an email newsletter invokes background processes (using the PHP CLI SAPI - see below). The background mailer engine will load the following using cURL:
 
@@ -29,7 +29,7 @@ Sending an email newsletter invokes background processes (using the PHP CLI SAPI
 - a newsletter TEXT page (containing the newsletter's TEXT content)
 - a recipients XML page (containing any recipient data)
 
-If you are using the throttling feature (which is highly recommended), Emails will be sent in "slices", each one being an own PHP process.
+If you are using the throttling feature (which is highly recommended), Emails will be sent in "slices", each one being a dedicated PHP process.
 
 Of course the XML page containing your recipients' data should be protected (details below).
 
@@ -41,7 +41,7 @@ Of course the XML page containing your recipients' data should be protected (det
 - multiple recipient groups
 - flexible recipient personalization
 - multiple senders
-- "sender personalization" (using the field's datasource output)
+- "sender personalization" can be done in XSLT (using the field's datasource output which includes the sender ID and value)
 - verbose log files, gzipped (if available)
 
 ### What this extension won't do
@@ -67,7 +67,7 @@ Never use this extension for SPAM. If you do so I will hate you.
 
 Information about [installing and updating extensions](http://symphony-cms.com/learn/tasks/view/install-an-extension/) can be found in the Symphony documentation at <http://symphony-cms.com/learn/>.
 
-**There have been changes to the field's database structure which are not covered by the updater function.** So if you have already set up RC1, plesase uninstall the field and the extension, the install the latest version. (Make sure to have a copy of your XML configuration which can be adopted to the new XML structure.)
+Note to 1.0RC1 users: **There have been changes to the field's database structure which are not covered by the updater function.** So if you have already set up RC1, plesase uninstall the field and the extension, the install the latest version. (Make sure to have a copy of your XML configuration which can be adopted to the new XML structure.)
 
 
 ## Prerequisites
@@ -113,12 +113,12 @@ This chapter describes the setup process for:
 - the newsletter TEXT page
 - the recipients page
 
-In order to send Newsletters, you should have created a TEXT page and - optionally - an HTML page to display entries of this section as email content. These pages' URLs will have a dynamic portion used to specify the entry. Use {$param} syntax, e.g. {$id} or {$title}:
+In order to send Newsletters, you should have created a TEXT page and - optionally - an HTML page to display entries of this section as email content. Any pages are described using the page ID (which you will see in the page's "edit" URL in Symphony's backend) plus a *url-appendix* which may contain the above parameter syntax.
 
-- {$title} or similar: any field in the section (use the field handle)
+The *url-appendix* may contain {$param} syntax, e.g. {$id} or {$title} to describe dynamic portions of the page URL:
+
 - {$id}: the ID of the entry
-
-Any pages are described using the page ID (which you will see in the page's "edit" URL) plus a *url-appendix* which may contain the above parameter syntax.
+- {$title} or similar: any field in the section (use the field handle)
 
 HTTP redirects are followed. If '200 OK' is not found in the HTTP response headers, an error will be thrown and the sending process will be aborted.
 
@@ -130,6 +130,8 @@ Please don't underestimate the amount of work to create "stylish" email newslett
 - use **inline styles** exclusively;
 - beware of image blocking in email clients; see <http://www.campaignmonitor.com/resources/entry/677/image-blocking-in-email-clients/>, for example.
 
+You should test your designs using different email clients and/or online services. Email clients may behave unexpectedly, because their HTML rendering engines are really really bad in some cases. Webmail clients will display your message with tons of "surrounding page code", which may lead to unexpected results as well.
+
 ### Newsletter TEXT page
 
 A Symphony page which contains the newsletter's TEXT content (based on your section data). During development is has turned out that website authors may be used to writing using Markdown or even HTML markup. This is why you should not use unformatted textarea content to create email text content. Instead you may use XSLT to build the text content (based on your datasource's formatted, i.e. HTML, output).
@@ -139,9 +141,9 @@ An XSLT file suited for this purpose has been [released separately](http://symph
 
 ### Recipients Page(s)
 
-Any recipients page must be an XML page. While this adds an additional level of complexity for unexperienced users, this is still desirable because of the level of flexibilty it provides. In an XML page, you may combine several dynamic and static datasources, and you may control the output using XSLT. Thus you can use all of Symphony's flexibility to create your group of recipients (Recipients XML page).
+Any recipients page must be an XML page. While this adds an additional level of complexity for unexperienced users, this is still desirable because of the level of flexibilty it provides. In an XML page, you may combine several dynamic and static datasources, use datasource filtering, and you may control the output using XSLT. Thus you can use all of Symphony's flexibility to create your group of recipients (Recipients XML page).
 
-A very simple (Symphony) XML page XSL might look like this:
+A very simple XML page XSLT might look like this:
 
 	<?xml version="1.0" encoding="UTF-8"?>
 	<xsl:stylesheet version="1.0"
@@ -179,7 +181,7 @@ And the output might be:
 		</recipients>
 	</data>
 
-The important thing to note is: For each newsletter channel you will have to configure the `entry` nodes as well as the appendant `email` and `name` nodes. In the above case all these nodes are named "as expected" - but this is not necessary.
+The important thing to note is: For each Email Newsletter field you will have to configure the `entry` nodes as well as the appendant `email` and `name` nodes. In the above case all these nodes are named "as expected" - but this is not necessary.
 
 If you use more than one datasource, the output might look like this:
 
@@ -211,7 +213,9 @@ This XML page will still work with the Email Newsletters extension, as long as t
 
 ### Global confguration (Preferences)
 
-SwiftMailer Location: You may change the location of the SwiftMailer library. I am rather sure that over time there will be more extensions using SwiftMailer. By making the library's location configurable it will be possible to use only one (central) Swiftmailer library instead of one per extension. At the moment, of course, you may leave this field empty if you don't move the library which is included in the download.
+- SwiftMailer Location
+
+	You may change the location of the SwiftMailer library. I am rather sure that over time there will be more extensions using SwiftMailer. By making the library's location configurable it will be possible to use only one (central) Swiftmailer library instead of one per extension. At the moment, of course, you may leave this field empty if you don't move the library which is included in the download.
 
 ### Field Configuration (XML, Section Editor)
 
@@ -378,6 +382,7 @@ It will look like this in your page XML:
 		</recipients>
 	</email-newsletter>
 
+This XML output allows for advanced email customization using XSLT. You may, for example, append custom headers or footers for certain sender IDs.
 
 ## Param Pool value
 
@@ -423,25 +428,25 @@ By design the extension will log every Newsletter that has been sent, including 
 - recipient "slices" (array format)
 - statistics
 
-Logs are saved in `/manifest/logs/email-newsletters`. If the `gzencode` PHP function is available. logs will be saved as compressed `.tgz` files. They may be useful for "historical" oder legal reasons. If you are missing any useful information in these logs, please drop me a line.
+Logs are saved in `/manifest/logs/email-newsletters`. If the `gzencode` PHP function is available. logs will be saved as compressed `.tgz` files. They may be useful for "historical" or legal reasons. If you are missing any useful information in these logs, please drop me a line.
 
 
 ## Security Concerns
 
 ### Protecting the Recipients Page (and Content Pages alike)
 
-You may consider the following measures in order to secure your recipients data:
+You may consider the following measures in order to secure your pages:
 
 - page URL: may contain a "password portion" (which may be changed at any time, because the page is referenced by its ID in the XML configuration);
 - page XSLT: compare remote IP to server IP using the Server Headers extension; don't output any useful data if the condition is not met;
 - page type 'admin'
 
-If you are using the latter (which is recommended), the extension will automatically remove the 'admin' page type before loading the page and add the 'admin' page type again immediately after loading. This will happen very fast, so it is not considered a security flaw.
+If you are using the latter (which is recommended), the extension will automatically remove the 'admin' page type before loading the page and add the 'admin' page type again immediately after loading. This will happen very fast, so it is not considered a big security flaw. In combination with the first two measures, your data be really safe.
 
 All these measures may be taken for content pages as well, in case you don't want to have the email's content accessible on the web. If you have a newsletter archive on your website, you may even consider the following:
 
 - content pages for newsletters which are "published" on the web - datasource checks for a "published" flag
-- separate content pages for use with the extension (preview plus loading!) - datasource does not check the "published" flag, but the page has the page type 'admin'
+- separate content pages for use with the extension (preview plus content loading!) - datasource does not check the "published" flag, but the page has the page type 'admin'
 
 ### Protecting the Logfiles
 
@@ -463,12 +468,12 @@ By design the extension will not send an email to one address multiple times. Th
 
 ### Ampersands
 
-You will probably find no way to display ampersands as `&` on your TEXT preview page. This is by nature of XSLT: ampersand will always be encoded as `&amp;`. However, upon sending those entities will be replaced by `&`, and the Swiftmailer library will leave them untouched. Since the newsletter TEXT page will probably be used for preview purposes only, this is regarded a minor flaw. Maybe it will be addressed in future versions.
+You will probably find no way to display ampersands as `&` on your TEXT preview page. This is by nature of XSLT: ampersand will always be encoded as `&amp;`. However, upon sending those entities will be replaced by `&`, and the Swiftmailer library will leave them untouched. Since the newsletter TEXT page will probably be used for preview purposes only, this is regarded a minor flaw.
 
 
 ## Known issues
 
-1. There are bugs concerning HTML form button values in Internet Explorer 6 and 7 (which shouldn't be used for Symphony anyway). This means that:
+- There are bugs concerning HTML form button values in Internet Explorer 6 and 7 (which shouldn't be used for Symphony anyway). This means that:
 
 	- You won't be able to send a newsletter in IE6 (who cares?)
 	- You won't be able to handle multiple Email Newsletters (i.e. Email Newsletter fields) **in the same section** using IE7. This is considered a rare setup (but is actually a supported feature in modern browsers).
@@ -477,7 +482,7 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 
 ## Change Log
 
-### 1.0RC2
+### 1.0RC3
 
 Release-date: 2010-06-30
 
