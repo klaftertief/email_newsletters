@@ -222,6 +222,12 @@
 
 			if($status == 'cancel')
 			{
+				## update logfile and exit
+$log_message = "
+--- " . date('c') . ": Process has been cancelled.
+"
+;
+				$this->__log($log_message);
 				$this->__exitError(__('ERROR: Process has been cancelled.'));
 			}
 

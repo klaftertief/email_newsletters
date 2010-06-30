@@ -10,7 +10,7 @@
 
 ## Synopsis
 
-The Email Newsletters extension for the Symphony XSLT CMS has been developed because in the past I have been really unhappy with standalone software solutions. In nearly every respect (footprint, maintainability, email code control and author workflow) an on-board solution for Symphony seems the way to go. The Email Newsletters extension allows for sending email newsletters directly from Symphony's backend.
+The Email Newsletters extension for the Symphony XSLT CMS has been developed because in the past I have been really unhappy with standalone Newsletter solutions. In nearly every respect (footprint, maintainability, email code control and author workflow) an on-board solution for Symphony seems the way to go. The Email Newsletters extension allows for sending email newsletters directly from Symphony's backend.
 
 This extension is powerful. But in order to not sacrifice flexibility, some design decisions have been made which make things hard wrap your mind around. So:
 
