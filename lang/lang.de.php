@@ -53,9 +53,6 @@
 		'Total' =>
 		'Gesamt',
 
-		'Counting...' =>
-		'Zählt...',
-
 		'Errors' =>
 		'Fehler',
 

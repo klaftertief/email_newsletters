@@ -642,7 +642,7 @@
 				array(__('Sent'), 'col'),
 				array(__('Errors'), 'col'),
 			);
-			$td1 = Widget::TableData($entry_data['stats_rec_total'] ? $entry_data['stats_rec_total'] : __('Counting...'));
+			$td1 = Widget::TableData($entry_data['stats_rec_total'] ? $entry_data['stats_rec_total'] : '-');
 			$td2 = Widget::TableData($entry_data['stats_rec_sent'] ? $entry_data['stats_rec_sent'] : '0');
 			$td3 = Widget::TableData($entry_data['stats_rec_errors'] ? $entry_data['stats_rec_errors'] : '0');
 			$aTableBody = array();
