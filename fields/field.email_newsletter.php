@@ -578,17 +578,6 @@
 		}
 
 		/**
-		 * Check if a string is a valid URL
-		 *
-		 * @param string $url - URL to check
-		 * @return 0 or 1 or FALSE
-		 */
-		private function __isValidURL($url)
-		{
-			return preg_match('|^http(s)?://[a-z0-9-]+(.[a-z0-9-]+)*(:[0-9]+)?(/.*)?$|i', $url);
-		}
-
-		/**
 		 * Replace parameters in string
 		 *
 		 * @param string $string
