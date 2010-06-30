@@ -413,17 +413,17 @@
 						$p = new XMLElement('p');
 						$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));
 						$gui->appendChild($p);						
+						## append 'no live mode' information
+						if($live_mode !== true)
+						{
+							$gui->appendChild(new XMLElement('p', __('Live Mode has not been set. No Emails will be sent.')));
+						}
 					}
 					else
 					{
 						$p = new XMLElement('p', __('The entry has not been created yet. No Emails can be sent.'));
 						$gui->appendChild($p);						
 					}
-			}
-			## append 'no live mode' information
-			if($live_mode !== true)
-			{
-				$gui->appendChild(new XMLElement('p', __('Live Mode has not been set. No Emails will be sent.')));
 			}
 			$wrapper->appendChild($gui);
 		}
