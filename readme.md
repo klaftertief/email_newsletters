@@ -300,11 +300,13 @@ Meaning of those XML elements (and/or attributes):
 
 		While the `return-path` option may be useful from time to time, you should be careful with this - if the return path's domain does not match your SPF record's domain, your SPF record won't do any good to your SPAM score...
 
+		If multiple senders are configured, a sender dropdown menu will be shown.
+
 - Recipients (required)
 
 	- group (required: one; optional: multiple)
 
-		Every recipient page defines a recipient group! (If more than one, you will be able to select the recipient groups for a newsletter on your entry edit page.)
+		Groups are described using recipients XML pages. If multiple groups are configured, checkboxes will be shown  which allow to choose one ore more recipient groups to send to. (Please note that recipients will not receive more than one email even if they belong to more than one of the selected groups. See below: "Recipient email duplicates".)
 
 		- ID
 
