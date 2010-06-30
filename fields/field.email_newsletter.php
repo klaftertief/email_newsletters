@@ -314,10 +314,12 @@
 					$p->appendChild(new XMLElement('button', __('Cancel'), array('name' => 'action[en-cancel-'.$this->_field_id.']', 'type' => 'submit', 'class' => 'send')));
 					$gui->appendChild($p);
 					break;
+
 				case "cancel":
 					$gui->setAttribute('class', 'email-newsletters-gui reloadable');
 					$gui->appendChild(new XMLElement('p', __('Cancelling...')));
 					break;
+
 				case "error":
 					$gui->appendChild(new XMLElement('p', __($entry_data['error_message'])));
 					$gui->appendChild($this->__buildStatusTable($entry_data));
@@ -325,6 +327,7 @@
 					$p->appendChild(new XMLElement('button', __('Retry'), array('name' => 'action[en-retry-'.$this->_field_id.']', 'type' => 'submit', 'class' => 'send')));
 					$gui->appendChild($p);
 					break;
+
 				case "sent":
 					$gui->appendChild(new XMLElement('p', '<strong>' . __('Mailing complete.') . '</strong>'));
 					$senders = $config->xpath('senders/item');
@@ -353,6 +356,7 @@
 						$gui->appendChild($p);
 					}
 					break;
+
 				default:
 					$senders = $config->xpath('senders/item');
 					if(count($senders) > 1)
@@ -412,7 +416,7 @@
 						$gui->appendChild($content_links);
 						$p = new XMLElement('p');
 						$p->appendChild(new XMLElement('button', __('Send'), array('name' => 'action[save]', 'type' => 'submit', 'value' => 'en-send:'.$this->_field_id.':'.$this->_entry_id.':'.DOMAIN.':'.$live_mode, 'class' => 'send', 'id' => 'savesend')));
-						$gui->appendChild($p);						
+						$gui->appendChild($p);
 						## append 'no live mode' information
 						if($live_mode !== true)
 						{
@@ -422,7 +426,7 @@
 					else
 					{
 						$p = new XMLElement('p', __('The entry has not been created yet. No Emails can be sent.'));
-						$gui->appendChild($p);						
+						$gui->appendChild($p);
 					}
 			}
 			$wrapper->appendChild($gui);

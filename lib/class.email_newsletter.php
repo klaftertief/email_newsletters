@@ -311,10 +311,10 @@
 				$message->setReturnPath($mailer_params['return_path']);
 			}
 
-			## send message
+			## send and receive count from $mailer instance if live mode is true (else: simulate count)
 			$num_sent = $live_mode ? $mailer->batchSend($message, $failures) : count($mailto_slice);
 
-			## update logfile
+			## update logfile - failures array will return from $mailer instance
 			$log_message = "
 --- " . date('c') . ": mailing recipients " . ($start + 1) . " to " . ($start + count($mailto_slice)) . " START
 
@@ -397,8 +397,8 @@ Failures:
 			$url = URL . '/' . $path . '/' . $this->__replaceParamsInString($url_appendix);
 
 			## check for 'admin' page type in tbl_pages_types
-			$existing = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_pages_types` WHERE `page_id` = '{$page_id}' AND `type` = 'admin' LIMIT 1");
-			$page_type_admin = !empty($existing) ? true : false;
+			$db_admin_row = Administration::instance()->Database->fetchRow(0, "SELECT * FROM `tbl_pages_types` WHERE `page_id` = '{$page_id}' AND `type` = 'admin' LIMIT 1");
+			$page_type_admin = !empty($db_admin_row) ? true : false;
 
 			if($page_type_admin)
 			{
