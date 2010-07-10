@@ -6,7 +6,7 @@
 			'name' => 'Michael Eichelsdoerfer',
 			'email' => 'info@michael-eichelsdoerfer.de',
 		),
-		'release-date' => '2010-06-25',
+		'release-date' => '2010-07-10',
 	);
 
 	## Dictionary

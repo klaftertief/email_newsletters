@@ -1,7 +1,7 @@
 # Email Newsletters
 
-- Version: 1.0RC3
-- Date: 2010-06-29
+- Version: 1.0
+- Date: 2010-07-10
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
 - GitHub Repository: <http://github.com/michael-e/email_newsletters>
