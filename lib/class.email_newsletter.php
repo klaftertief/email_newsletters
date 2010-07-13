@@ -253,10 +253,17 @@ $log_message = "
 			require_once(EXTENSIONS . '/' . $swiftmailer_location . '/lib/swift_required.php');
 
 			## create transport
-			$transport = Swift_SmtpTransport::newInstance($mailer_params['smtp_host'], $mailer_params['smtp_port'] ? $mailer_params['smtp_port'] : 25)
-			  ->setUsername($mailer_params['smtp_username'])
-			  ->setPassword($mailer_params['smtp_password'])
-			;
+			if(isset($mailer_params['smtp_username']) && isset($mailer_params['smtp_password']))
+			{
+				$transport = Swift_SmtpTransport::newInstance($mailer_params['smtp_host'], $mailer_params['smtp_port'] ? $mailer_params['smtp_port'] : 25)
+				  ->setUsername($mailer_params['smtp_username'])
+				  ->setPassword($mailer_params['smtp_password'])
+				;
+			}
+			else
+			{
+				$transport = Swift_SmtpTransport::newInstance($mailer_params['smtp_host'], $mailer_params['smtp_port'] ? $mailer_params['smtp_port'] : 25);
+			}
 
 			## create mailer instance
 			$mailer = Swift_Mailer::newInstance($transport);
