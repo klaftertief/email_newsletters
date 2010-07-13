@@ -258,16 +258,6 @@ $log_message = "
 			  ->setPassword($mailer_params['smtp_password'])
 			;
 
-			## test transport
-			try
-			{
-				$transport->start();
-			}
-			catch(Swift_TransportException $e)
-			{
-				$this->__exitError('SwiftMailer exception: ' . $e->getMessage());
-			}
-
 			## create mailer instance
 			$mailer = Swift_Mailer::newInstance($transport);
 
