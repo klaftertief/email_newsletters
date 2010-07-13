@@ -1,7 +1,7 @@
 # Email Newsletters
 
-- Version: 1.0.1
-- Date: 2010-07-10
+- Version: 1.0.2
+- Date: 2010-07-13
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
 - GitHub Repository: <http://github.com/michael-e/email_newsletters>
@@ -481,6 +481,14 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 	These constraints are regarded a small price for having a combined "Save and Send" button (which is simply called "Send"). (We actually need the button's value to implement this functionality.)
 
 ## Change Log
+
+### 1.0.2
+
+Release-date: 2010-07-13
+
+This release is reverting the changes which were made for 1.0.1. Although by no means critical, they turned out to be useless. The issues which I tried to fix here were mainly caused by firewall settings. The second problem was: SwiftMailer's Swift_TransportException seems to be broken at the moment. But we can still leave the 'transport test' as it was in 1.0, because it will NOT break a process that wouldn't break anyway (upon the first connection attempt).
+
+Sorry for any confusion.
 
 ### 1.0.1
 
