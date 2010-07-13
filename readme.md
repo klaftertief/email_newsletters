@@ -1,6 +1,6 @@
 # Email Newsletters
 
-- Version: 1.0
+- Version: 1.0.1
 - Date: 2010-07-10
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
@@ -481,6 +481,17 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 	These constraints are regarded a small price for having a combined "Save and Send" button (which is simply called "Send"). (We actually need the button's value to implement this functionality.)
 
 ## Change Log
+
+### 1.0.1
+
+Release-date: 2010-07-13
+
+Bugfix: Removed the Swiftmailer 'transport test' (which seems to be buggy)
+Feature: Added unauthenticated SMTP
+
+### 1.0
+
+Release-date: 2010-07-10
 
 ### 1.0RC3
 
