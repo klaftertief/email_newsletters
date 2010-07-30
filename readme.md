@@ -233,7 +233,7 @@ This is the minimum configuration:
 		<live-mode>1</live-mode>
 		<subject-field-label>Title</subject-field-label>
 		<senders>
-			<item id="1" email="ted@example.com" smtp-host="smtp.example.com" smtp-port="" smtp-username="ted" smtp-password="tedspassword" reply-to="management@example.com">Ted Tester</item>
+			<item id="1" email="ted@example.com" smtp-host="smtp.example.com" smtp-port="" smtp-username="ted" smtp-password="tedspassword" reply-to-email="management@example.com">Ted Tester</item>
 		</senders>
 		<recipients>
 			<group id="1" page-id="141" entry-node="entry" name-node="name" email-node="email" code-node="code">Deutschland</group>
