@@ -71,7 +71,7 @@
 		'Recipient groups: ' =>
 		'Empfängergruppen: ',
 
-		'The entry has not been created yet. No Emails can be sent.' =>
+		'The entry has not been created yet. No emails can be sent.' =>
 		'Der Eintrag ist noch nicht erstellt worden. E-Mails können nicht verschickt werden.',
 
 		'Configuration (XML)' =>
@@ -80,7 +80,7 @@
 		'XML is invalid' =>
 		'XML ist nicht valide',
 
-		'Live Mode has not been set. No Emails will be sent.' =>
+		'Live Mode has not been set. No emails will be sent.' =>
 		'Live Mode nicht gesetzt. E-Mails werden nicht verschickt.',
 
 		'ERROR: Sender is missing.' =>

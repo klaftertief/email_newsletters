@@ -420,12 +420,12 @@
 						## append 'no live mode' information
 						if($live_mode !== true)
 						{
-							$gui->appendChild(new XMLElement('p', __('Live Mode has not been set. No Emails will be sent.')));
+							$gui->appendChild(new XMLElement('p', __('Live Mode has not been set. No emails will be sent.')));
 						}
 					}
 					else
 					{
-						$p = new XMLElement('p', __('The entry has not been created yet. No Emails can be sent.'));
+						$p = new XMLElement('p', __('The entry has not been created yet. No emails can be sent.'));
 						$gui->appendChild($p);
 					}
 			}
