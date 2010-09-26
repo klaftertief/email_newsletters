@@ -350,7 +350,7 @@ Failures:
 
 				## build the command to initiate the background mailer process, like so:
 				## php /path/to/your/website/extensions/email_newsletters/lib/init.php 123 5678 www.example.com resume > /dev/null &
-				$cmd  = 'php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
+				$cmd  = 'env -i php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
 				$cmd .= $this->_field_id . ' ';
 				$cmd .= $this->_entry_id . ' ';
 				$cmd .= DOMAIN . ' ';

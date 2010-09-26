@@ -149,7 +149,7 @@
 						'status' => 'processing',
 					));
 					## build the command to initiate the background mailer process
-					$cmd  = 'php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
+					$cmd  = 'env -i php ' . EXTENSIONS . '/email_newsletters/lib/init.php' . ' ';
 					$cmd .= $this->_field_id . ' ';
 					$cmd .= $this->_entry_id . ' ';
 					$cmd .= $domain . ' ';
