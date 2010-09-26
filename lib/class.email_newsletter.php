@@ -268,7 +268,7 @@ $log_message = "
 			{
 			    $this->__exitError('SwiftMailer exception: ' . $e->getMessage());
 			}
-			
+
 			## create mailer instance
 			$mailer = Swift_Mailer::newInstance($transport);
 

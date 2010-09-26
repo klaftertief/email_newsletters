@@ -18,7 +18,7 @@
 		{
 			return array(
 				'name'			=> 'Email Newsletters',
-				'version'		=> '1.0.3',
+				'version'		=> '1.0.4',
 				'release-date'	=> '2010-09-26',
 				'author'		=> array(
 					'name'			=> 'Michael Eichelsdoerfer',

@@ -1,6 +1,6 @@
 # Email Newsletters
 
-- Version: 1.0.3
+- Version: 1.0.4
 - Date: 2010-09-26
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
@@ -482,7 +482,15 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 
 ## Change Log
 
+### 1.0.4
+
+Release-date: 2010-09-26
+
+Make background processes start with an empty environment, ignoring the inherited environment. This may be useful if PHP is running as CGI module.
+
 ### 1.0.3
+
+Release-date: 2010-09-26
 
 Bugfix release.
 
