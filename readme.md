@@ -1,7 +1,7 @@
 # Email Newsletters
 
-- Version: 1.0.2
-- Date: 2010-07-13
+- Version: 1.0.3
+- Date: 2010-09-26
 - Requirements: Symphony CMS 2.0.7 or newer, <http://github.com/symphony/symphony-2>
 - Author: Michael Eichelsdoerfer
 - GitHub Repository: <http://github.com/michael-e/email_newsletters>
@@ -481,6 +481,10 @@ You will probably find no way to display ampersands as `&` on your TEXT preview 
 	These constraints are regarded a small price for having a combined "Save and Send" button (which is simply called "Send"). (We actually need the button's value to implement this functionality.)
 
 ## Change Log
+
+### 1.0.3
+
+Bugfix release.
 
 ### 1.0.2
 
