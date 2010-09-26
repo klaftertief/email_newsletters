@@ -78,6 +78,7 @@
 			}
 			$mailto = array();
 			$invalid = array();
+			$decorator_replacements = array();
 			foreach($this->_config->xpath('//recipients/group') as $group)
 			{
 				if(in_array($group['id'], explode(',',$rec_group_ids)))
