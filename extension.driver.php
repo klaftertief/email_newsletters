@@ -93,7 +93,7 @@
 		 		 `config_xml` TEXT,
 				  PRIMARY KEY  (`id`),
 				  KEY `field_id` (`field_id`)
-				) TYPE=MyISAM;"
+				) ENGINE=MyISAM;"
 			);
 			if($fields) return true;
 			return false;

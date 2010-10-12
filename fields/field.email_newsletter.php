@@ -118,7 +118,7 @@
 				 `stats_rec_errors` int(10) unsigned default NULL,
 				  PRIMARY KEY  (`id`),
 				  KEY `entry_id` (`entry_id`)
-				) TYPE=MyISAM;"
+				) ENGINE=MyISAM;"
 			);
 			return true;
 		}
