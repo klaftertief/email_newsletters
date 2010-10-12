@@ -18,8 +18,8 @@
 		{
 			return array(
 				'name'			=> 'Email Newsletters',
-				'version'		=> '1.0.4',
-				'release-date'	=> '2010-09-26',
+				'version'		=> '1.0.5',
+				'release-date'	=> '2010-10-12',
 				'author'		=> array(
 					'name'			=> 'Michael Eichelsdoerfer',
 					'website'		=> 'http://www.michael-eichelsdoerfer.de',
