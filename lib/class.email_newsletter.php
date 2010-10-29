@@ -280,7 +280,7 @@ $log_message = "
 			Swift_Preferences::getInstance()->setCacheType('null');
 
 			## find recipients 'slice'
-			$start = $this->_entry_data['stats_rec_sent'] + $this->_entry_data['stats_rec_errors'];
+			$start = $this->_entry_data['stats_rec_sent'];
 			$remaining = count($mailto) - $start;
 			$slice_size = intval($mailer_params['throttle_number']) ? intval($mailer_params['throttle_number']) : $remaining;
 			$time_period = intval($mailer_params['throttle_period']) ? intval($mailer_params['throttle_period']) : 0;
