@@ -279,15 +279,15 @@ $log_message = "
 			## do not remove this if you don't really know the bug!!!
 			Swift_Preferences::getInstance()->setCacheType('null');
 
-			## find recipients 'slice'
-			$start = $this->_entry_data['stats_rec_sent'];
-			$remaining = count($mailto) - $start;
+			## find recipients 'slice' - count sent plus errors, but don't count 'initial invalids'
+			$offset = $this->_entry_data['stats_rec_sent'] + $this->_entry_data['stats_rec_errors'] - count(unserialize($this->_entry_data['rec_invalid']));
+			$remaining = count($mailto) - $offset;
 			$slice_size = intval($mailer_params['throttle_number']) ? intval($mailer_params['throttle_number']) : $remaining;
 			$time_period = intval($mailer_params['throttle_period']) ? intval($mailer_params['throttle_period']) : 0;
 
 			$time_start = time();
 			$time_end = $time_start + $time_period;
-			$mailto_slice = array_slice($mailto, $start, $slice_size);
+			$mailto_slice = array_slice($mailto, $offset, $slice_size);
 			$failures = array();
 
 			## create message
@@ -323,13 +323,13 @@ $log_message = "
 
 			## update logfile - failures array will return from $mailer instance
 			$log_message = "
---- " . date('c') . ": mailing recipients " . ($start + 1) . " to " . ($start + count($mailto_slice)) . " START
+--- " . date('c') . ": mailing recipients " . ($offset + 1) . " to " . ($offset + count($mailto_slice)) . " START
 
 Recipients:
 " . print_r($mailto_slice, TRUE) . "
 Failures:
 " . print_r($failures, TRUE) . "
---- " . date('c') . ": mailing recipients " . ($start + 1) . " to " . ($start + count($mailto_slice)) . " END
+--- " . date('c') . ": mailing recipients " . ($offset + 1) . " to " . ($offset + count($mailto_slice)) . " END
 "
 			;
 			$this->__log($log_message);
