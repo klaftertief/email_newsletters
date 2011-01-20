@@ -241,6 +241,7 @@ $log_message = "
 			$mailer_params['reply_to_email']  = (string)$sender[0]['reply-to-email'];
 			$mailer_params['reply_to_name']   = (string)$sender[0]['reply-to-name'];
 			$mailer_params['return_path']     = (string)$sender[0]['return-path'];
+			$mailer_params['security']        = (string)$sender[0]['security'];
 			$mailer_params['throttle_number'] = (string)$this->_config->throttling->{"emails-per-time-period"};
 			$mailer_params['throttle_period'] = (string)$this->_config->throttling->{"time-period-in-seconds"};
 
@@ -254,7 +255,7 @@ $log_message = "
 			require_once(EXTENSIONS . '/' . $swiftmailer_location . '/lib/swift_required.php');
 
 			## create transport
-			$transport = Swift_SmtpTransport::newInstance($mailer_params['smtp_host'], $mailer_params['smtp_port'] ? $mailer_params['smtp_port'] : 25)
+			$transport = Swift_SmtpTransport::newInstance($mailer_params['smtp_host'], $mailer_params['smtp_port'] ? $mailer_params['smtp_port'] : 25, $mailer_params['security'] ? $mailer_params['security'] : null)
 			  ->setUsername($mailer_params['smtp_username'])
 			  ->setPassword($mailer_params['smtp_password'])
 			;
